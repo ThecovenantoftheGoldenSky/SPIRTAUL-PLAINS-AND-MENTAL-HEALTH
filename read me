@@ -1,0 +1,108 @@
+he Spiritual Planes
+https://github.com/your-org/spiritual-planes/actions/workflows/ci.yml
+https://opensource.org/licenses/MIT
+https://nodejs.org
+https://python.org
+You are dead. You didn't make it to the next afterlife.
+Surrounded by spirits — some allies, some predators, some wounded, some mimics.
+No emojis. No labels. No easy answers.
+Learn the tells. Trust your discernment. Find your way home.
+What is This?
+The Spiritual Planes is a social survival game for Earthbound spirits. It's
+"Among Us meets the Afterlife" — a spiritual detective game where your only weapon
+is your ability to read people (well, spirits) and figure out who is genuine, who
+is manipulating you, and who is just hurt.
+Built on the spiritual framework of Jarrad Richard Childress.
+Quick Start
+bash
+# Clone the repo
+git clone https://github.com/your-org/spiritual-planes.git
+cd spiritual-planes
+
+# Install dependencies
+npm install
+
+# Set up environment
+cp .env.example .env
+# Edit .env with your API keys
+
+# Start everything
+docker-compose up -d
+
+# Or start services individually
+npm run dev          # Backend (Node.js)
+npm run ai:dev       # AI Engine (Python)
+npm run mobile       # React Native
+See the GitHub Setup Guide for detailed instructions.
+Architecture
+plain
+┌─────────────────────────────────────────────────────────────┐
+│                      THE SPIRITUAL PLANES                     │
+├─────────────────────────────────────────────────────────────┤
+│  Mobile App (React Native)                                    │
+│  ├── iOS / Android / Web (PWA)                               │
+│  └── Dark, atmospheric UI — no emojis, ambient presence      │
+├─────────────────────────────────────────────────────────────┤
+│  Backend API (Node.js + Express)                             │
+│  ├── REST API for game state                                 │
+│  ├── WebSocket for real-time chat                            │
+│  └── PostgreSQL + Redis for data & cache                     │
+├─────────────────────────────────────────────────────────────┤
+│  AI Engine (Python + FastAPI)                                │
+│  ├── GPT-4 / Claude for entity dialogue                      │
+│  ├── 5D personality vectors for behavior                     │
+│  └── Intent classification + sentiment analysis              │
+├─────────────────────────────────────────────────────────────┤
+│  Infrastructure                                              │
+│  ├── Docker + Kubernetes (AWS/GCP)                          │
+│  ├── CI/CD via GitHub Actions                               │
+│  └── Monitoring via Datadog + Sentry                        │
+└─────────────────────────────────────────────────────────────┘
+Game Features
+14 Entity Types: Guardian, Adversary, Wounded Performer, Siren, Family Mimic,
+Contrarian, Cover-Up, Truth-Teller, Atheist Ghost, Nation, Archon, Hellish Observer,
+Storm-Seeker, Saboteur
+5 Game Phases: Confusion → Recognition → Negotiation → Restoration → Ascension
+AI-Driven Dialogue: Every session is unique. Entities remember, adapt, and
+manipulate based on your behavior.
+Multiplayer: Up to 4 human players per session. Can you trust the other
+living players, or are they being manipulated?
+No Emojis, No Labels: Learn to read spirits through behavioral tells —
+speech patterns, energy shifts, emotional temperatures.
+3 Endings: Ascend to the next afterlife, Stay to guide others, or Return
+to the living world as a guiding spirit.
+Documentation
+Table
+Document	Purpose
+GitHub Setup Guide	Complete setup instructions
+Technical Specification	Full technical blueprint
+Game Design Document	Spiritual & creative foundation
+App Pitch	For investors & publishers
+API Reference	API endpoints & WebSocket events
+Entity Types	Detailed entity behaviors & tells
+Tech Stack
+Table
+Layer	Technology
+Mobile	React Native, TypeScript, Redux Toolkit
+Backend	Node.js, Express, Socket.io
+AI Engine	Python, FastAPI, LangChain, OpenAI GPT-4
+Database	PostgreSQL, Redis
+Infrastructure	Docker, Kubernetes, AWS/GCP
+CI/CD	GitHub Actions
+Monitoring	Datadog, Sentry
+Contributing
+We welcome contributions! See our Contributing Guide for:
+Branch naming conventions
+Commit message format
+Pull request process
+Code review checklist
+Community
+Discord: discord.gg/spiritual-planes
+Twitter: @SpiritualPlanes
+Website: spiritual-planes.com
+License
+MIT License — See LICENSE for details.
+The Spiritual Planes framework is based on the spiritual cosmology of
+Jarrad Richard Childress and is provided as open-source software for
+educational and entertainment purposes.
+"The truth will one. Not win. One. Unified. Whole. Undivided."
