@@ -1,0 +1,805 @@
+THE SPIRITUAL PLANES
+GitHub Repository Setup Guide
+Complete Instructions for Developers
+QUICK START (For Experienced Devs)
+bash
+# 1. Clone the repo
+git clone https://github.com/your-org/spiritual-planes.git
+cd spiritual-planes
+
+# 2. Install dependencies
+npm install
+pip install -r requirements.txt
+
+# 3. Set up environment
+cp .env.example .env
+# Edit .env with your API keys
+
+# 4. Start the database
+docker-compose up -d postgres redis
+
+# 5. Run migrations
+npm run db:migrate
+
+# 6. Seed initial data
+npm run db:seed
+
+# 7. Start development servers
+npm run dev          # Backend (Node.js + Express)
+npm run ai:dev       # AI Engine (Python + FastAPI)
+npm run mobile       # React Native (Metro bundler)
+TABLE OF CONTENTS
+Repository Structure
+Prerequisites
+Environment Setup
+Backend Setup (Node.js)
+AI Engine Setup (Python)
+Mobile App Setup (React Native)
+Database Setup
+Running the Full Stack
+Testing
+Deployment
+Contributing
+Troubleshooting
+1. REPOSITORY STRUCTURE
+plain
+spiritual-planes/
+├── .github/                    # GitHub Actions, issue templates
+│   ├── workflows/
+│   │   ├── ci.yml             # Continuous Integration
+│   │   ├── deploy-staging.yml
+│   │   └── deploy-production.yml
+│   ├── ISSUE_TEMPLATE/
+│   └── PULL_REQUEST_TEMPLATE.md
+│
+├── apps/
+│   ├── backend/               # Node.js + Express API
+│   │   ├── src/
+│   │   │   ├── config/
+│   │   │   ├── controllers/
+│   │   │   ├── middleware/
+│   │   │   ├── models/
+│   │   │   ├── routes/
+│   │   │   ├── services/
+│   │   │   ├── utils/
+│   │   │   └── app.js
+│   │   ├── tests/
+│   │   ├── package.json
+│   │   └── Dockerfile
+│   │
+│   ├── ai-engine/             # Python + FastAPI AI service
+│   │   ├── src/
+│   │   │   ├── entities/
+│   │   │   ├── prompts/
+│   │   │   ├── models/
+│   │   │   ├── services/
+│   │   │   ├── utils/
+│   │   │   └── main.py
+│   │   ├── tests/
+│   │   ├── requirements.txt
+│   │   └── Dockerfile
+│   │
+│   └── mobile/                # React Native app
+│       ├── src/
+│       │   ├── components/
+│       │   ├── screens/
+│       │   ├── navigation/
+│       │   ├── store/
+│       │   ├── services/
+│       │   ├── utils/
+│       │   └── App.tsx
+│       ├── android/
+│       ├── ios/
+│       ├── tests/
+│       ├── package.json
+│       └── metro.config.js
+│
+├── packages/
+│   ├── shared-types/          # TypeScript types shared across apps
+│   ├── entity-engine/         # Core entity behavior logic
+│   └── ui-components/         # Shared React Native components
+│
+├── infra/
+│   ├── docker/
+│   │   ├── docker-compose.yml
+│   │   ├── docker-compose.prod.yml
+│   │   └── Dockerfile.*
+│   ├── kubernetes/
+│   │   ├── backend-deployment.yml
+│   │   ├── ai-engine-deployment.yml
+│   │   ├── mobile-ingress.yml
+│   │   └── configmaps/
+│   └── terraform/
+│       ├── main.tf
+│       └── variables.tf
+│
+├── docs/
+│   ├── ARCHITECTURE.md
+│   ├── API_REFERENCE.md
+│   ├── ENTITY_TYPES.md
+│   ├── GAME_DESIGN.md
+│   └── DEPLOYMENT.md
+│
+├── scripts/
+│   ├── setup.sh
+│   ├── seed-db.js
+│   ├── generate-entities.js
+│   └── deploy.sh
+│
+├── .env.example
+├── .gitignore
+├── .eslintrc.js
+├── .prettierrc
+├── package.json              # Root workspace config
+├── turbo.json                # Turborepo config
+└── README.md
+2. PREREQUISITES
+Required Software
+Table
+Software	Version	Purpose
+Node.js	>= 18.0	Backend, mobile, tooling
+Python	>= 3.10	AI engine
+Docker	>= 20.0	Database, containerization
+Docker Compose	>= 2.0	Local development stack
+Git	>= 2.30	Version control
+PostgreSQL	>= 14.0	Database (or use Docker)
+Redis	>= 6.0	Cache (or use Docker)
+Required Accounts
+Table
+Service	Purpose
+OpenAI API	GPT-4 entity dialogue generation
+Anthropic API	Claude fallback
+AWS / GCP	Cloud hosting
+Firebase	Push notifications, analytics
+Sentry	Error tracking
+Datadog	Monitoring
+Optional but Recommended
+Table
+Software	Purpose
+Android Studio	Android emulator
+Xcode	iOS simulator
+Postman	API testing
+pgAdmin	Database management
+RedisInsight	Cache monitoring
+3. ENVIRONMENT SETUP
+Step 1: Clone the Repository
+bash
+git clone https://github.com/your-org/spiritual-planes.git
+cd spiritual-planes
+Step 2: Install Root Dependencies
+bash
+# Using npm (recommended)
+npm install
+
+# OR using yarn
+yarn install
+
+# OR using pnpm
+pnpm install
+This installs:
+Turborepo (monorepo management)
+ESLint, Prettier (code quality)
+Husky (git hooks)
+Commitlint (conventional commits)
+Step 3: Configure Environment Variables
+bash
+cp .env.example .env
+Edit .env with your credentials:
+env
+# === DATABASE ===
+DATABASE_URL=postgresql://user:password@localhost:5432/spiritual_planes
+REDIS_URL=redis://localhost:6379
+
+# === AI SERVICES ===
+OPENAI_API_KEY=sk-your-openai-key
+OPENAI_MODEL=gpt-4
+ANTHROPIC_API_KEY=your-anthropic-key
+ANTHROPIC_MODEL=claude-3-opus
+
+# === AUTHENTICATION ===
+JWT_SECRET=your-super-secret-jwt-key-min-32-chars
+JWT_EXPIRES_IN=7d
+REFRESH_TOKEN_SECRET=another-super-secret-key
+
+# === BACKEND ===
+NODE_ENV=development
+PORT=3000
+API_VERSION=v1
+CORS_ORIGIN=http://localhost:8081
+
+# === AI ENGINE ===
+AI_ENGINE_PORT=8000
+AI_ENGINE_HOST=localhost
+MAX_TOKENS_PER_RESPONSE=150
+TEMPERATURE=0.8
+
+# === MOBILE ===
+MOBILE_API_URL=http://localhost:3000/api/v1
+WEBSOCKET_URL=ws://localhost:3000
+
+# === MONITORING ===
+SENTRY_DSN=https://your-sentry-dsn
+DATADOG_API_KEY=your-datadog-key
+
+# === FEATURE FLAGS ===
+ENABLE_MULTIPLAYER=true
+ENABLE_VOICE_INPUT=true
+ENABLE_PUSH_NOTIFICATIONS=false
+Step 4: Initialize Git Hooks
+bash
+npx husky install
+This sets up:
+Pre-commit: Linting, formatting, type checking
+Commit-msg: Conventional commit validation
+Pre-push: Test suite execution
+4. BACKEND SETUP (Node.js + Express)
+Step 1: Navigate to Backend
+bash
+cd apps/backend
+Step 2: Install Dependencies
+bash
+npm install
+Step 3: Database Setup
+bash
+# Run migrations
+npm run db:migrate
+
+# Seed initial data (entity types, lore, etc.)
+npm run db:seed
+
+# Verify connection
+npm run db:verify
+Step 4: Start Development Server
+bash
+# Standard mode
+npm run dev
+
+# With hot reload
+npm run dev:watch
+
+# With debugging
+npm run dev:debug
+The API will be available at http://localhost:3000
+Step 5: Verify Backend
+bash
+# Health check
+curl http://localhost:3000/health
+
+# API documentation
+curl http://localhost:3000/api/v1/docs
+Backend Architecture
+plain
+apps/backend/src/
+├── config/
+│   ├── database.js          # PostgreSQL connection
+│   ├── redis.js             # Redis connection
+│   ├── auth.js              # JWT configuration
+│   └── logger.js            # Winston logging
+│
+├── controllers/
+│   ├── auth.controller.js   # Authentication
+│   ├── player.controller.js # Player management
+│   ├── session.controller.js # Game sessions
+│   ├── entity.controller.js # Entity operations
+│   └── leaderboard.controller.js
+│
+├── middleware/
+│   ├── auth.middleware.js   # JWT validation
+│   ├── rate-limit.middleware.js
+│   ├── error.middleware.js
+│   └── validation.middleware.js
+│
+├── models/
+│   ├── player.model.js
+│   ├── session.model.js
+│   ├── entity.model.js
+│   └── exchange.model.js
+│
+├── routes/
+│   ├── auth.routes.js
+│   ├── player.routes.js
+│   ├── session.routes.js
+│   └── entity.routes.js
+│
+├── services/
+│   ├── auth.service.js
+│   ├── session.service.js    # Core game logic
+│   ├── entity.service.js     # Entity generation
+│   ├── ai-client.service.js  # AI engine communication
+│   └── websocket.service.js  # Socket.io management
+│
+├── utils/
+│   ├── chaos-calculator.js   # Chaos/faith algorithms
+│   ├── phase-manager.js      # Session phase logic
+│   └── tell-detector.js      # Entity identification
+│
+└── app.js                    # Express application entry
+5. AI ENGINE SETUP (Python + FastAPI)
+Step 1: Navigate to AI Engine
+bash
+cd apps/ai-engine
+Step 2: Create Virtual Environment
+bash
+# Using venv
+python -m venv venv
+source venv/bin/activate  # Linux/Mac
+# OR
+venv\Scripts\activate  # Windows
+
+# Using conda
+conda create -n spiritual-planes python=3.10
+conda activate spiritual-planes
+Step 3: Install Dependencies
+bash
+pip install -r requirements.txt
+Key dependencies:
+plain
+fastapi==0.104.0
+uvicorn==0.24.0
+langchain==0.0.325
+openai==1.0.0
+anthropic==0.7.0
+pydantic==2.4.0
+python-dotenv==1.0.0
+pytest==7.4.0
+httpx==0.25.0
+Step 4: Download NLTK Data (for sentiment analysis)
+bash
+python -c "import nltk; nltk.download('vader_lexicon')"
+Step 5: Start Development Server
+bash
+# Standard mode
+uvicorn src.main:app --reload --port 8000
+
+# With logging
+uvicorn src.main:app --reload --port 8000 --log-level debug
+The AI API will be available at http://localhost:8000
+Step 6: Verify AI Engine
+bash
+# Health check
+curl http://localhost:8000/health
+
+# Test entity generation
+curl -X POST http://localhost:8000/api/v1/entities/generate \
+  -H "Content-Type: application/json" \
+  -d '{
+    "session_context": {
+      "phase": "confusion",
+      "chaos": 50,
+      "faith": 30
+    },
+    "entity_types": ["guardian", "adversary", "wounded_performer"]
+  }'
+AI Engine Architecture
+plain
+apps/ai-engine/src/
+├── entities/
+│   ├── __init__.py
+│   ├── base_entity.py        # Base entity class
+│   ├── guardian.py           # Guardian personality
+│   ├── adversary.py          # Adversary personality
+│   ├── wounded_performer.py
+│   ├── siren.py
+│   ├── watcher.py
+│   ├── family_mimic.py
+│   ├── contrarian.py
+│   ├── cover_up.py
+│   ├── truth_teller.py
+│   ├── atheist_ghost.py
+│   ├── nation.py
+│   ├── archon.py
+│   ├── hellish_observer.py
+│   ├── storm_seeker.py
+│   └── saboteur.py
+│
+├── prompts/
+│   ├── __init__.py
+│   ├── base_prompt.py        # Prompt template base
+│   ├── entity_prompts.py     # Entity-specific prompts
+│   ├── wall_of_god.py       # Wall invocation prompts
+│   └── restoration.py       # Restoration dialogue
+│
+├── models/
+│   ├── __init__.py
+│   ├── personality.py        # 5D personality vector
+│   ├── relationship.py       # Relationship meters
+│   └── session_state.py      # Session context
+│
+├── services/
+│   ├── __init__.py
+│   ├── llm_service.py        # OpenAI/Anthropic client
+│   ├── entity_factory.py     # Entity generation
+│   ├── response_generator.py # Dialogue generation
+│   ├── intent_classifier.py  # Player intent detection
+│   ├── sentiment_analyzer.py # Emotional analysis
+│   └── context_manager.py    # Session memory
+│
+├── utils/
+│   ├── __init__.py
+│   ├── tell_injector.py      # Behavioral marker injection
+│   ├── mask_integrity.py     # Mask strength calculator
+│   └── chaos_faith.py        # State update logic
+│
+└── main.py                    # FastAPI application entry
+6. MOBILE APP SETUP (React Native)
+Step 1: Navigate to Mobile
+bash
+cd apps/mobile
+Step 2: Install Dependencies
+bash
+npm install
+Step 3: iOS Setup (Mac only)
+bash
+cd ios
+pod install
+cd ..
+Step 4: Start Development Server
+bash
+# iOS simulator
+npx react-native run-ios
+
+# Android emulator
+npx react-native run-android
+
+# Metro bundler (if not started automatically)
+npx react-native start
+Step 5: Verify Mobile App
+The app should launch on your simulator/emulator with:
+Splash screen: "You are dead."
+Onboarding: Tutorial session
+Main screen: Session dashboard
+Mobile Architecture
+plain
+apps/mobile/src/
+├── components/
+│   ├── common/
+│   │   ├── Button.tsx
+│   │   ├── Input.tsx
+│   │   ├── Card.tsx
+│   │   └── Loading.tsx
+│   ├── game/
+│   │   ├── EntityPresence.tsx    # Ambient visual effects
+│   │   ├── ChatBubble.tsx        # Entity dialogue display
+│   │   ├── ChaosMeter.tsx        # Chaos/faith visualization
+│   │   ├── WallOfGod.tsx         # Invocation animation
+│   │   └── PhaseIndicator.tsx    # Current phase display
+│   └── navigation/
+│       └── AppNavigator.tsx
+│
+├── screens/
+│   ├── SplashScreen.tsx          # "You are dead."
+│   ├── OnboardingScreen.tsx      # Tutorial
+│   ├── DashboardScreen.tsx       # Player home
+│   ├── SessionScreen.tsx         # Active game session
+│   ├── EntityDetailScreen.tsx    # Entity lore/info
+│   ├── LeaderboardScreen.tsx     # Rankings
+│   ├── CircleScreen.tsx          # Guild management
+│   ├── ProfileScreen.tsx         # Player stats
+│   └── SettingsScreen.tsx
+│
+├── navigation/
+│   ├── AppNavigator.tsx
+│   ├── AuthNavigator.tsx
+│   └── GameNavigator.tsx
+│
+├── store/
+│   ├── slices/
+│   │   ├── authSlice.ts
+│   │   ├── sessionSlice.ts
+│   │   ├── entitySlice.ts
+│   │   └── playerSlice.ts
+│   └── store.ts
+│
+├── services/
+│   ├── api.ts                    # REST API client
+│   ├── websocket.ts              # Socket.io client
+│   ├── auth.ts                   # Authentication
+│   └── storage.ts                # AsyncStorage wrapper
+│
+├── utils/
+│   ├── constants.ts
+│   ├── theme.ts                  # Dark atmospheric theme
+│   ├── animations.ts             # Framer Motion presets
+│   └── helpers.ts
+│
+└── App.tsx
+7. DATABASE SETUP
+Option A: Docker (Recommended for Development)
+bash
+# Start all services
+docker-compose up -d
+
+# This starts:
+# - PostgreSQL on port 5432
+# - Redis on port 6379
+# - Backend on port 3000
+# - AI Engine on port 8000
+Option B: Local PostgreSQL
+bash
+# Install PostgreSQL (Mac)
+brew install postgresql@14
+brew services start postgresql@14
+
+# Create database
+createdb spiritual_planes
+
+# Create user
+createuser -P spiritual_planes_user
+
+# Grant permissions
+psql -d spiritual_planes -c "GRANT ALL PRIVILEGES ON DATABASE spiritual_planes TO spiritual_planes_user;"
+Database Migrations
+bash
+# Run all pending migrations
+npm run db:migrate
+
+# Create new migration
+npm run db:migrate:create --name add_player_rank
+
+# Rollback last migration
+npm run db:migrate:rollback
+
+# Reset database (DANGER: drops all data)
+npm run db:reset
+Seeding Data
+bash
+# Seed entity types and lore
+npm run db:seed
+
+# Seed test data (for development)
+npm run db:seed:test
+
+# Seed production data
+npm run db:seed:prod
+8. RUNNING THE FULL STACK
+Development Mode (All Services)
+bash
+# Terminal 1: Start infrastructure
+docker-compose up -d postgres redis
+
+# Terminal 2: Start backend
+cd apps/backend
+npm run dev
+
+# Terminal 3: Start AI engine
+cd apps/ai-engine
+source venv/bin/activate
+uvicorn src.main:app --reload --port 8000
+
+# Terminal 4: Start mobile
+cd apps/mobile
+npx react-native start
+npx react-native run-ios  # or run-android
+Using Turborepo (Recommended)
+bash
+# Start all services at once
+npx turbo run dev
+
+# Start specific services
+npx turbo run dev --filter=backend
+npx turbo run dev --filter=ai-engine
+npx turbo run dev --filter=mobile
+
+# Build for production
+npx turbo run build
+
+# Run tests across all apps
+npx turbo run test
+Production Mode (Docker)
+bash
+# Build all images
+docker-compose -f docker-compose.prod.yml build
+
+# Start production stack
+docker-compose -f docker-compose.prod.yml up -d
+
+# View logs
+docker-compose -f docker-compose.prod.yml logs -f
+9. TESTING
+Unit Tests
+bash
+# Backend tests
+cd apps/backend
+npm run test
+
+# AI engine tests
+cd apps/ai-engine
+pytest
+
+# Mobile tests
+cd apps/mobile
+npm run test
+Integration Tests
+bash
+# Start test database
+docker-compose -f docker-compose.test.yml up -d
+
+# Run integration suite
+npm run test:integration
+
+# Run E2E tests (mobile)
+cd apps/mobile
+npm run test:e2e:ios
+npm run test:e2e:android
+Test Coverage
+bash
+# Generate coverage reports
+npm run test:coverage
+
+# View coverage
+open coverage/lcov-report/index.html
+10. DEPLOYMENT
+Staging Deployment
+bash
+# Deploy to staging environment
+npm run deploy:staging
+
+# This executes:
+# 1. Build Docker images
+# 2. Push to container registry
+# 3. Update Kubernetes manifests
+# 4. Apply to staging cluster
+# 5. Run smoke tests
+# 6. Notify team
+Production Deployment
+bash
+# Deploy to production (requires approval)
+npm run deploy:production
+
+# This executes:
+# 1. Full test suite
+# 2. Security scan
+# 3. Build optimized images
+# 4. Blue-green deployment
+# 5. Health checks
+# 6. Traffic switch
+# 7. Rollback capability
+Kubernetes Deployment
+bash
+# Apply manifests
+kubectl apply -f infra/kubernetes/
+
+# Verify rollout
+kubectl rollout status deployment/backend
+kubectl rollout status deployment/ai-engine
+
+# View pods
+kubectl get pods -n spiritual-planes
+
+# View logs
+kubectl logs -f deployment/backend -n spiritual-planes
+11. CONTRIBUTING
+Branch Naming
+plain
+feature/add-storm-seeker-entity
+bugfix/fix-chaos-calculation
+docs/update-api-reference
+refactor/optimize-llm-prompts
+test/add-session-integration-tests
+Commit Convention
+plain
+feat: add new entity type (Storm-Seeker)
+fix: correct chaos calculation when Wall is invoked
+docs: update entity tell cheat sheet
+refactor: optimize LLM prompt templates
+test: add integration tests for session phases
+chore: update dependencies
+Pull Request Process
+Create feature branch from main
+Write code + tests
+Run npm run lint and npm run test
+Update documentation
+Submit PR with description
+Request review from 2 team members
+Address feedback
+Merge after approval
+Code Review Checklist
+[ ] Code follows style guide (ESLint, Prettier)
+[ ] Tests pass (unit + integration)
+[ ] No console.logs or debug code
+[ ] Documentation updated
+[ ] API changes reflected in docs
+[ ] Mobile UI tested on both platforms
+[ ] AI responses reviewed for quality
+[ ] Security considerations addressed
+12. TROUBLESHOOTING
+Common Issues
+"Cannot connect to database"
+bash
+# Check if PostgreSQL is running
+docker-compose ps
+
+# Restart database
+docker-compose restart postgres
+
+# Check logs
+docker-compose logs postgres
+"AI engine returns 500 errors"
+bash
+# Check if API keys are set
+cat .env | grep OPENAI
+
+# Test AI engine directly
+curl http://localhost:8000/health
+
+# Restart AI engine
+uvicorn src.main:app --reload --port 8000
+"Mobile app won't build"
+bash
+# Clear caches
+npx react-native start --reset-cache
+cd ios && pod deintegrate && pod install
+
+# Clean build
+npx react-native clean-project-auto
+"WebSocket connection fails"
+bash
+# Check backend is running
+curl http://localhost:3000/health
+
+# Check CORS settings in .env
+cat .env | grep CORS
+
+# Verify WebSocket URL in mobile app
+cat apps/mobile/src/services/websocket.ts
+Performance Issues
+Slow AI responses
+bash
+# Enable response caching in AI engine
+REDIS_CACHE_TTL=300
+
+# Use lighter model for development
+OPENAI_MODEL=gpt-3.5-turbo
+
+# Enable connection pooling
+UVICORN_WORKERS=4
+High memory usage
+bash
+# Monitor memory
+npm run monitor:memory
+
+# Optimize entity generation batch size
+ENTITY_BATCH_SIZE=5
+
+# Enable garbage collection
+NODE_OPTIONS="--max-old-space-size=4096 --expose-gc"
+Getting Help
+Discord: discord.gg/spiritual-planes
+GitHub Issues: github.com/your-org/spiritual-planes/issues
+Documentation: docs.spiritual-planes.com
+Email: dev@spiritual-planes.com
+QUICK REFERENCE COMMANDS
+bash
+# Full stack startup
+docker-compose up -d          # Infrastructure
+npm run dev                   # Backend
+uvicorn src.main:app --reload # AI Engine
+npx react-native start        # Mobile
+
+# Testing
+npm run test                  # All tests
+npm run test:watch            # Watch mode
+npm run test:coverage         # Coverage report
+
+# Database
+npm run db:migrate            # Run migrations
+npm run db:seed               # Seed data
+npm run db:reset              # Reset (DANGER)
+
+# Deployment
+npm run deploy:staging        # Staging
+npm run deploy:production     # Production
+
+# Maintenance
+npm run lint                  # Check code style
+npm run lint:fix              # Fix code style
+npm run type-check            # TypeScript check
+npm run audit                 # Security audit
+LICENSE
+MIT License — See LICENSE for details.
+The Spiritual Planes framework is based on the spiritual cosmology of
+Jarrad Richard Childress and is provided as open-source software for
+educational and entertainment purposes.
+GitHub Setup Guide v1.0
+The Spiritual Planes: A Social Survival Game
+Date: June 26, 2026
