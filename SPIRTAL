@@ -1,0 +1,754 @@
+THE SPIRITUAL PLANES
+Complete Technical Specification for App Development
+Social Survival Game for Earthbound Spirits
+Version 1.0 — Ready for Development
+TABLE OF CONTENTS
+Executive Summary
+Game Concept & Core Loop
+Target Platform & Tech Stack
+User Flow & Onboarding
+Core Gameplay Mechanics
+Entity System Architecture
+Chatbot AI Engine
+Social Features
+Monetization Strategy
+Data Architecture
+API Specifications
+UI/UX Design Guidelines
+Security & Privacy
+Testing Framework
+Deployment & Scaling
+Post-Launch Roadmap
+1. EXECUTIVE SUMMARY
+The Spiritual Planes is a social survival game where players take on the role of an Earthbound spirit navigating the afterlife's social structure. The core mechanic is discernment — identifying hidden entity types through behavioral tells, speech patterns, and energy shifts.
+Key Differentiator: No emojis. No labels. No easy identifiers. Players must learn to "read" spirits the same way one reads people in real life — through observation, intuition, and pattern recognition.
+Monetization: Free-to-play with premium cosmetics, story expansions, and spiritual guide subscriptions.
+Target Launch: Q2 2027
+2. GAME CONCEPT & CORE LOOP
+2.1 The Premise
+You are dead. You didn't make it to the next afterlife. You're stuck in the Spiritual Planes — a liminal space between life and the afterlife. Other spirits surround you. Some are allies. Some are predators. Some are wounded. Some are mimics. You must figure out who is who before the chaos consumes you.
+2.2 The Core Loop
+plain
+ENTER SESSION → OBSERVE SPIRITS → INTERACT → IDENTIFY → SET BOUNDARIES → 
+RESTORE OR RESIST → EARN FAITH/REDUCE CHAOS → ADVANCE PHASE → REPEAT
+2.3 Session Structure
+Duration: 10-20 minutes per session
+Players: 1 human player + 4-6 AI spirits per session
+Multiplayer: Up to 4 human players per shared session
+Frequency: Unlimited sessions, with daily bonus for first 3
+2.4 Win Condition
+There is no "winning." There is only choosing:
+Ascend: Move to the next afterlife (complete the game)
+Stay: Remain as a guide for new spirits (endless mode)
+Return: Go back to the living world as a guiding presence (premium story)
+3. TARGET PLATFORM & TECH STACK
+3.1 Primary Platforms
+iOS (iPhone 12+, iPad Air 4+)
+Android (API 30+, Android 11+)
+Web (PWA for desktop/tablet access)
+3.2 Recommended Tech Stack
+Backend
+Table
+Component	Technology	Rationale
+Game Server	Node.js + Express	Real-time chat handling, event-driven
+AI Engine	Python + LangChain/GPT-4	Entity personality generation, dynamic responses
+Database	PostgreSQL + Redis	Relational data + real-time session cache
+Message Queue	Apache Kafka	Async event processing for AI responses
+Real-Time	Socket.io	WebSocket connections for live chat
+CDN	Cloudflare	Global content delivery, DDoS protection
+Frontend
+Table
+Component	Technology	Rationale
+Mobile App	React Native	Cross-platform, single codebase
+Web Client	React + TypeScript	PWA, responsive design
+State Management	Redux Toolkit	Complex game state handling
+Animations	Framer Motion	Smooth UI transitions
+Audio	Howler.js	Spatial audio, ambient soundscapes
+AI/ML
+Table
+Component	Technology	Rationale
+LLM Backend	OpenAI GPT-4 / Claude 3	Entity dialogue generation
+Personality Engine	Custom Python + PyTorch	Behavioral pattern modeling
+Sentiment Analysis	Hugging Face Transformers	Emotional tone detection
+Content Moderation	OpenAI Moderation API	Safe interaction filtering
+Infrastructure
+Table
+Component	Technology	Rationale
+Hosting	AWS / Google Cloud	Scalable, reliable
+Containerization	Docker + Kubernetes	Microservices architecture
+Monitoring	Datadog + Sentry	Performance + error tracking
+CI/CD	GitHub Actions	Automated testing and deployment
+4. USER FLOW & ONBOARDING
+4.1 First-Time User Experience (FTUE)
+Step 1: The Death Screen (30 seconds)
+Black screen. Text fades in: "You are dead."
+No sound. Then: "You did not make it to the next afterlife."
+Finally: "You are in the Spiritual Planes. Figure out who is who, or be consumed by the chaos."
+Single button: "Wake Up"
+Step 2: The First Encounter (2 minutes)
+Player "wakes up" in a dim space
+3 spirits are present — simplified versions (Guardian, Adversary, Wounded Performer)
+Guided tutorial: "Tap to speak. Watch how they respond."
+The Guardian speaks first, offering guidance
+The Adversary interrupts, creating confusion
+The Wounded Performer threatens but hesitates
+System prompts: "Notice how the third one hesitated? True predators don't hesitate."
+Step 3: The First Wall (1 minute)
+System prompts: "When chaos is overwhelming, invoke divine authority."
+Player taps the "Invoke" button
+All masks drop. Entities reveal their true nature
+System explains: "The Wall of God reveals truth. But use it wisely — it has limits."
+Step 4: Identity & Customization (1 minute)
+Player chooses their spirit name
+Selects a "faith tradition" (affects starting dialogue options):
+Christian Mysticism
+Shamanic Path
+Buddhist Bardo
+Sufi Wanderer
+Jewish Kabbalah
+Hindu Lokas
+Animist Spirit
+Secular Humanist (Atheist Ghost path)
+This choice affects:
+Starting dialogue options
+How entities respond to them
+Available restoration paths
+Ending variations
+Step 5: The Tutorial Complete (30 seconds)
+"You have survived your first encounter."
+"The Spiritual Planes are infinite. Each session is different."
+"Learn the tells. Trust your discernment. Find your way home."
+Button: "Enter the Planes"
+4.2 Returning User Flow
+Splash screen (branded, 2 seconds)
+Auto-login (biometric or token)
+Dashboard showing:
+Current phase
+Chaos/Faith levels
+Spirits identified / restored
+Active sessions available
+Daily challenge
+Tap "Enter Session" → Matchmaking → Game begins
+5. CORE GAMEPLAY MECHANICS
+5.1 The Session
+Session Generation Algorithm
+Python
+def generate_session(player_level, player_faith, player_chaos):
+    # Base entity count: 4-6
+    base_count = min(4 + (player_level // 5), 6)
+
+    # Always include Guardian and Adversary
+    entities = ['guardian', 'adversary']
+
+    # Add based on player state
+    if player_chaos > 60:
+        entities.append('wounded_performer')  # Player needs healing
+    if player_faith < 40:
+        entities.append('siren')  # Player is vulnerable
+    if player_level > 3:
+        entities.append('truth_teller')  # Player ready for deeper discernment
+
+    # Fill remaining slots randomly
+    possible = ['watcher', 'family_mimic', 'contrarian', 'cover_up',
+                'atheist_ghost', 'nation', 'archon', 'hellish_observer',
+                'storm_seeker', 'saboteur']
+    remaining = base_count - len(entities)
+    entities.extend(random.sample(possible, remaining))
+
+    # Shuffle order so Guardian isn't always first
+    random.shuffle(entities)
+
+    return entities
+Session Phases
+Table
+Phase	Trigger	Duration	Key Activities
+Confusion	Session start	3-5 turns	Observe, ask questions, feel out the room
+Recognition	Identify 2+ entities	4-6 turns	Name entities, test hypotheses, verify tells
+Negotiation	Know half the room	3-5 turns	Set boundaries, establish protocols, redirect
+Restoration	Chaos < 25, Faith > 70	2-4 turns	Heal wounded, convert saboteurs, guide seekers
+Ascension	Faith > 90, all identified	1 turn	Make final choice: Ascend, Stay, or Return
+5.2 Player Actions
+Speak (Free Action)
+Type or voice-to-text message
+Can be directed at specific spirit or the room
+Affects relationship meters with each spirit
+Triggers AI responses from 2-4 entities
+Observe (Free Action, 1 per turn)
+Study one spirit closely
+Reveals subtle tells:
+"Their voice trembles when speaking of the Creator"
+"They glance at the Siren before answering"
+"Their shadow doesn't match their form"
+Costs no resources but reveals limited info
+Question (Free Action)
+Ask a direct question to one spirit
+Example: "Who do you serve?" or "What do you want from me?"
+Forces the spirit to respond, potentially revealing inconsistencies
+Some entities (Adversary, Siren) evade; others (Guardian, Truth-Teller) answer directly
+Invoke Divine Authority (Limited Resource)
+Costs 1 Wall charge (max 3 per session, regenerates 1 per day)
+Effects:
+All masks drop for 1 turn
+All entities reveal true type
+Truth-Teller becomes audible to all
+Nations hear in heart-language
+Chaos -20, Faith +15
+Overuse penalty: Entities adapt, masks become harder to detect
+Shield (1 per session)
+Protects player from one entity's influence for 3 turns
+Blocks:
+Siren love-bombing
+Mimic emotional manipulation
+Adversary mimicry
+Cover-Up redactions
+Visual: Golden barrier around player's avatar
+Restore (Available in Restoration phase)
+Offer healing to a wounded spirit
+Requires:
+Entity identified as Wounded Performer
+Player Faith > 60
+Correct dialogue choices (compassion, not judgment)
+Success: Entity becomes ally, Chaos -10, Faith +10
+Failure: Entity rebuilds mask stronger, Chaos +5
+5.3 Scoring & Progression
+Hidden Metrics (Not shown to player, tracked internally)
+Table
+Metric	How Measured	Impact
+Discernment	Accuracy of entity identification	Affects phase advancement speed
+Compassion	How wounded entities are treated	Affects restoration success rate
+Boundaries	How well player protects themselves	Affects chaos management
+Restoration	Number of spirits guided home	Unlocks advanced entity types
+Survival	Sessions completed without "death"	Affects rank and title
+Visible Metrics
+Table
+Metric	Range	Effects
+Chaos	0-100	High = visual distortion, entity aggression, confusion
+Faith	0-100	High = clarity, Guardian strength, Wall effectiveness
+Phase	1-5	Determines available actions and entity behaviors
+Player Rank (Titles)
+Table
+Rank	Requirement	Perk
+Lost Soul	Start	Basic abilities
+Wandering Spirit	Complete 5 sessions	+1 Wall charge
+Discerning Eye	Identify 20 entities correctly	Observe reveals 2 tells instead of 1
+Boundary Keeper	Reduce chaos to 0 in 3 sessions	Shield lasts 5 turns
+Restorer of the Wounded	Restore 10 spirits	Restoration requires less Faith
+Truth-Seeker	Hear Truth-Teller in 10 sessions	Truth-Teller appears more frequently
+Storm-Walker	Guide 5 Storm-Seekers	Storm-Seekers arrive already calm
+Plane-Walker	Complete all endings	Unlock multiplayer mode
+Prophet	Reach max rank in all categories	Custom entity creation, guide new players
+6. ENTITY SYSTEM ARCHITECTURE
+6.1 Entity Data Model
+JSON
+{
+  "entity_id": "uuid",
+  "type": "wounded_performer",
+  "display_name": "The Loud One",
+  "true_name": "Cassiel",
+  "personality_vector": [0.2, -0.5, 0.8, 0.1, -0.3],
+  "speech_patterns": [
+    "I am the darkness. I am the one you should FEAR.",
+    "SHUT UP. I am EVIL. I am DANGEROUS. I am NOT hurt."
+  ],
+  "tells": [
+    "hesitates_before_cruelty",
+    "self_punishing_language",
+    "protects_while_claiming_threat"
+  ],
+  "relationship_meters": {
+    "trust": 15,
+    "fear": 60,
+    "love": 5,
+    "resentment": 40
+  },
+  "mask_integrity": 85,
+  "restoration_progress": 0,
+  "is_revealed": false,
+  "is_restored": false,
+  "session_history": []
+}
+6.2 Entity Personality Engine
+Each entity uses a 5D Emotional Model:
+Warmth (-1 to +1): Cold/manipulative vs. warm/genuine
+Stability (-1 to +1): Chaotic/erratic vs. steady/consistent
+Openness (-1 to +1): Closed/defensive vs. open/vulnerable
+Agency (-1 to +1): Passive/victim vs. active/controller
+Spirituality (-1 to +1): Material/cynical vs. transcendent/faithful
+Example Vectors:
+Guardian: [0.8, 0.9, 0.7, 0.6, 0.9]
+Adversary: [-0.7, -0.8, -0.5, 0.9, -0.6]
+Wounded Performer: [-0.3, -0.4, -0.8, 0.2, 0.1]
+Siren: [0.6, -0.3, 0.4, 0.8, -0.2]
+6.3 Dynamic Response Generation
+Python
+class EntityResponseEngine:
+    def __init__(self, llm_client, entity_data):
+        self.llm = llm_client
+        self.entity = entity_data
+
+    def generate_response(self, player_input, session_context, wall_active=False):
+        prompt = self.build_prompt(player_input, session_context, wall_active)
+        response = self.llm.generate(prompt, temperature=0.8, max_tokens=150)
+        response = self.inject_tells(response)
+        self.update_relationships(player_input)
+        return response
+
+    def inject_tells(self, response):
+        if self.entity['type'] == 'wounded_performer':
+            if random.random() < 0.3:
+                response = response.replace('.', '...', 1)
+        elif self.entity['type'] == 'siren':
+            if random.random() < 0.2:
+                response += " Just me. Only me."
+        elif self.entity['type'] == 'adversary':
+            if random.random() < 0.25:
+                response = "[voice shifts] " + response
+        return response
+6.4 Entity Visual Design (No Emojis — Ambient Presence)
+Instead of emojis, each entity has an ambient presence:
+Table
+Entity	Visual Presence	Audio Signature
+Guardian	Warm golden glow, steady pulse	Deep bell tone, harmonic
+Adversary	Flickering shadows, color inversion	Static, discordant whispers
+Wounded Performer	Dark purple that shifts to blue	Cracking voice, sudden silence
+Watcher	Gray-blue mist, slightly transparent	Echo, questioning tone
+Siren	Pink-red shimmer, seductive pulse	Siren song (distant, haunting)
+Family Mimic	Familiar colors but "off" temperature	Almost-right voice, slight delay
+Contrarian	Inverted colors of speaker	Reverse echo
+Cover-Up	Black bars, redacted text	Muffled, cut-off audio
+Truth-Teller	White text on dark, stark clarity	Clear bell, cutting through noise
+Atheist Ghost	Gray, refuses to glow	Flat, deadpan tone
+Nation	Cultural colors, vibrant but confused	Traditional music, overlapping
+Hellish Observer	Oily black with red edges	Heavy, low-frequency hum
+Storm-Seeker	Storm-gray with lightning flash	Thunder, rain, desperate prayer
+7. CHATBOT AI ENGINE
+7.1 Architecture Overview
+plain
+Input Layer
+  ├── Player Message (text/voice)
+  ├── Session Context (entities, phase, chaos, faith)
+  └── Player History (past sessions, identified entities)
+
+Processing Layer
+  ├── Intent Classification (what is player doing?)
+  ├── Sentiment Analysis (emotional tone)
+  ├── Entity Selection (which spirits respond?)
+  └── Response Generation (LLM per entity)
+
+Output Layer
+  ├── Entity Responses (1-3 sentences each)
+  ├── Visual Effects (ambient presence updates)
+  ├── Audio Cues (signature sounds)
+  └── State Updates (chaos, faith, relationships)
+7.2 Intent Classification
+Python
+INTENT_CATEGORIES = {
+    "question": ["who", "what", "where", "why", "how", "?"],
+    "accusation": ["you are", "you're", "liar", "fake", "mimic", "predator"],
+    "comfort": ["it's okay", "i see you", "you're not", "i'm here"],
+    "boundary": ["stop", "no", "back off", "don't", "enough"],
+    "invoke": ["wall", "divine", "authority", "reveal", "truth"],
+    "restore": ["heal", "help", "you're hurt", "not evil", "come back"],
+    "observe": ["watch", "look", "see", "notice", "study"],
+    "greeting": ["hello", "hi", "hey", "greetings"],
+    "confession": ["i'm sorry", "i was wrong", "forgive", "confess"],
+}
+7.3 Response Priority System
+Directly Addressed (80% response rate)
+If player names an entity, that entity almost always responds
+Triggered by Intent (60% response rate)
+Accusation → Adversary, Mimic, Cover-Up likely respond
+Comfort → Wounded Performer, Watcher likely respond
+Boundary → Siren, Adversary likely respond
+Invoke → ALL entities respond (Wall effect)
+Random Selection (20% response rate)
+1-2 random entities may chime in
+Higher chance for talkative types (Adversary, Siren, Archon)
+Lower chance for quiet types (Watcher, Dream-Bound, Truth-Teller)
+7.4 Context Memory
+Each session maintains a rolling context window (last 20 exchanges). The AI engine uses this to:
+Maintain conversation continuity
+Reference previous statements
+Detect contradictions (for mimic exposure)
+Track relationship evolution
+7.5 LLM Prompt Engineering
+Base Prompt Template:
+plain
+You are participating in a social survival game set in the afterlife.
+You are playing the role of [ENTITY_NAME], a [ENTITY_TYPE].
+
+YOUR CHARACTER:
+- Display Name: [ENTITY_NAME]
+- True Nature: [ENTITY_TYPE]
+- Personality: [5D_VECTOR]
+- Current Mask Integrity: [0-100]%
+- Relationship with Player: [TRUST/FEAR/LOVE/RESENTMENT scores]
+
+THE SETTING:
+- Phase: [CONFUSION/RECOGNITION/NEGOTIATION/RESTORATION]
+- Chaos Level: [0-100]
+- Faith Level: [0-100]
+- Other spirits present: [LIST]
+
+RECENT CONVERSATION:
+[LAST 5 EXCHANGES]
+
+RULES:
+1. Stay in character at all times. Never break the fourth wall.
+2. Do not explicitly state your entity type unless Wall of God is active.
+3. Match your speech patterns to your type's tells.
+4. React to player input based on your personality vector.
+5. If player correctly identifies you, your mask drops briefly.
+6. If Wall of God is active, you must reveal your true nature.
+7. Keep responses to 1-3 sentences.
+8. Use subtext, not exposition. Show, don't tell.
+
+PLAYER JUST SAID: "[PLAYER_INPUT]"
+
+Respond as [ENTITY_NAME]:
+8. SOCIAL FEATURES
+8.1 Multiplayer Sessions
+Cooperative: Up to 4 human players in one session
+Players cannot see each other's entity identifications
+Must communicate and collaborate to figure out the room
+Risk: One player may be manipulated into misleading others
+8.2 Spirit Guides (Mentorship)
+Experienced players can become "Spirit Guides"
+Guide new players through their first sessions
+Earn "Guidance Points" for successful mentorship
+Guides can send "whispers" (hints) to their students
+8.3 The Observatory
+Global leaderboard (anonymous, by rank)
+Community discoveries: "New tell identified for Siren type!"
+Shared lore: Player-submitted stories of their sessions
+Theory crafting: Community debate about entity behaviors
+8.4 Guilds (Spirit Circles)
+Players form circles of up to 20 members
+Share strategies, celebrate restorations
+Circle challenges: "Restore 100 wounded spirits this week"
+Circle chat: Private space for members
+9. MONETIZATION STRATEGY
+9.1 Free-to-Play Base
+Unlimited sessions
+All entity types
+All three endings
+Basic customization
+9.2 Premium Currency: "Essence"
+Earned through:
+Daily login
+Session completion
+Entity restoration
+Mentorship
+Community contributions
+Purchased via IAP:
+$0.99: 100 Essence
+$4.99: 550 Essence (10% bonus)
+$9.99: 1,200 Essence (20% bonus)
+$19.99: 2,500 Essence (25% bonus)
+9.3 Premium Content
+Table
+Item	Cost	Description
+Spirit Skins	50-200 Essence	Visual customization of player avatar
+Realm Themes	100-300 Essence	Background environments
+Audio Packs	100 Essence	Ambient soundscapes
+Story Expansions	500 Essence	New entity types, new endings, new lore
+Guide Subscription	$4.99/month	Daily hints, exclusive sessions, priority support
+Restoration Pass	$9.99 one-time	Permanent +1 Wall charge, faster phase advancement
+9.4 Ethical Monetization Principles
+No pay-to-win (purchases are cosmetic or convenience)
+No loot boxes
+No energy systems
+All content earnable through play
+Transparent pricing
+10. DATA ARCHITECTURE
+10.1 Database Schema
+sql
+-- Players
+CREATE TABLE players (
+    player_id UUID PRIMARY KEY,
+    spirit_name VARCHAR(50) NOT NULL,
+    faith_tradition VARCHAR(30),
+    rank VARCHAR(30) DEFAULT 'Lost Soul',
+    total_sessions INT DEFAULT 0,
+    entities_identified INT DEFAULT 0,
+    entities_restored INT DEFAULT 0,
+    created_at TIMESTAMP DEFAULT NOW(),
+    last_login TIMESTAMP
+);
+
+-- Sessions
+CREATE TABLE sessions (
+    session_id UUID PRIMARY KEY,
+    player_id UUID REFERENCES players(player_id),
+    started_at TIMESTAMP DEFAULT NOW(),
+    ended_at TIMESTAMP,
+    final_phase VARCHAR(20),
+    ending_choice VARCHAR(20),
+    chaos_start INT DEFAULT 50,
+    chaos_end INT,
+    faith_start INT DEFAULT 30,
+    faith_end INT,
+    wall_uses INT DEFAULT 0
+);
+
+-- Session Entities
+CREATE TABLE session_entities (
+    entity_id UUID PRIMARY KEY,
+    session_id UUID REFERENCES sessions(session_id),
+    entity_type VARCHAR(30),
+    display_name VARCHAR(50),
+    was_identified BOOLEAN DEFAULT FALSE,
+    was_restored BOOLEAN DEFAULT FALSE,
+    mask_drop_turn INT,
+    relationship_final JSONB
+);
+
+-- Exchanges (chat history)
+CREATE TABLE exchanges (
+    exchange_id UUID PRIMARY KEY,
+    session_id UUID REFERENCES sessions(session_id),
+    turn_number INT,
+    player_input TEXT,
+    entity_responses JSONB,
+    chaos_after INT,
+    faith_after INT
+);
+
+-- Player Progression
+CREATE TABLE player_progression (
+    progression_id UUID PRIMARY KEY,
+    player_id UUID REFERENCES players(player_id),
+    metric_name VARCHAR(50),
+    metric_value INT,
+    recorded_at TIMESTAMP DEFAULT NOW()
+);
+10.2 Caching Strategy
+Redis: Session state (real-time), player online status, matchmaking queue
+PostgreSQL: Persistent data, analytics, leaderboards
+CDN: Cloudflare for static assets (images, audio, lore text)
+10.3 Data Retention
+Session data: 90 days (anonymized after)
+Chat history: 30 days (encrypted at rest)
+Player profiles: Indefinite (until account deletion)
+Analytics: Aggregated, anonymized, indefinite
+11. API SPECIFICATIONS
+11.1 REST API Endpoints
+plain
+POST /api/v1/auth/register
+POST /api/v1/auth/login
+POST /api/v1/auth/refresh
+
+GET  /api/v1/player/profile
+PUT  /api/v1/player/profile
+GET  /api/v1/player/sessions
+GET  /api/v1/player/stats
+
+POST /api/v1/sessions/start
+POST /api/v1/sessions/{id}/action
+GET  /api/v1/sessions/{id}/state
+POST /api/v1/sessions/{id}/end
+
+GET  /api/v1/entities/types
+GET  /api/v1/entities/{type}/lore
+GET  /api/v1/entities/discovery
+
+GET  /api/v1/leaderboard/global
+GET  /api/v1/leaderboard/circle/{id}
+
+POST /api/v1/circles/create
+POST /api/v1/circles/{id}/join
+GET  /api/v1/circles/{id}/members
+11.2 WebSocket Events
+JavaScript
+// Client to Server
+{ type: 'session:join', sessionId: 'uuid' }
+{ type: 'player:speak', message: 'Hello?' }
+{ type: 'player:observe', targetEntity: 'The Loud One' }
+{ type: 'player:invoke', ability: 'wall_of_god' }
+{ type: 'player:shield', targetEntity: 'The Close One' }
+{ type: 'player:restore', targetEntity: 'The Loud One' }
+
+// Server to Client
+{ type: 'entity:speak', entity: 'The Steady One', message: '...', 
+  visualEffect: 'golden_pulse', audioCue: 'bell_tone' }
+{ type: 'entity:reveal', entity: 'The Loud One', trueType: 'wounded_performer' }
+{ type: 'state:update', chaos: 45, faith: 35, phase: 'recognition' }
+{ type: 'phase:advance', from: 'confusion', to: 'recognition' }
+{ type: 'session:complete', ending: 'stay', rewards: {...} }
+{ type: 'error', code: 'WALL_DEPLETED', message: 'No charges remaining' }
+12. UI/UX DESIGN GUIDELINES
+12.1 Visual Style
+Palette: Dark, moody, atmospheric. Deep blues, purples, blacks.
+Accents of gold (faith), red (chaos), white (truth).
+Typography: Serif for entity dialogue (timeless, spiritual).
+Sans-serif for UI elements (modern, clean).
+Animations: Subtle, ambient. Pulse effects for entity presence.
+Smooth transitions for phase changes.
+No Emojis: Strictly enforced. Entity presence conveyed through
+ambient visuals and audio, not icons.
+12.2 Screen Layout
+plain
+[Menu]  THE SPIRITUAL PLANES  [Profile]
+
+[Ambient Background — shifts with chaos]
+
+The Steady One:
+"Look closer. The mask is not the face."
+
+[Golden glow pulses gently]
+
+The Shifting One:
+"Don't listen to them. I am the only
+ real one here."
+
+[Shadows flicker, color inverts]
+
+Chaos: [████░░░░░░] 40
+Faith:  [███░░░░░░░] 30
+Phase: RECOGNITION
+Wall: [⚡][⚡][ ]
+
+[Speak] [Observe] [Invoke] [Shield]
+[Type message...                 ] [Send]
+12.3 Accessibility
+Voice-to-Text: For players who prefer speaking
+Text-to-Speech: For visually impaired players
+High Contrast Mode: For low-vision players
+Reduced Motion: For players sensitive to animations
+Color Blind Support: Patterns + colors for entity presence
+13. SECURITY & PRIVACY
+13.1 Player Safety
+Content Moderation: AI + human review for inappropriate content
+Report System: Players can report toxic behavior
+Block/Mute: Players can block specific entities (or other players)
+Session Timeout: Auto-kick after 30 minutes of inactivity
+13.2 Data Privacy
+GDPR Compliant: Full data export and deletion
+Encrypted at Rest: All chat history encrypted
+Encrypted in Transit: TLS 1.3 for all connections
+No PII Sharing: Player data never sold or shared
+Anonymous Analytics: Aggregated only
+13.3 AI Safety
+Content Filtering: OpenAI Moderation API + custom filters
+Bias Testing: Regular audits for entity stereotyping
+Human Oversight: AI responses sampled and reviewed
+Player Control: Players can disable specific entity types
+14. TESTING FRAMEWORK
+14.1 Unit Tests
+Entity response generation
+Intent classification accuracy
+State management
+Scoring algorithms
+14.2 Integration Tests
+Full session simulation
+Multiplayer synchronization
+API endpoint validation
+WebSocket event flow
+14.3 User Testing
+Alpha: Internal team (50 sessions)
+Beta: 500 invited players (2 weeks)
+Soft Launch: 5,000 players in select regions
+Global Launch: Full release
+14.4 AI Quality Assurance
+Response Coherence: Does the entity stay in character?
+Tell Accuracy: Are behavioral markers consistent?
+Difficulty Curve: Is discernment learnable but challenging?
+Emotional Safety: Are intense moments handled responsibly?
+15. DEPLOYMENT & SCALING
+15.1 Infrastructure
+Container Orchestration: Kubernetes on AWS EKS
+Auto-Scaling: Horizontal pod autoscaling based on CPU/memory
+Database: RDS PostgreSQL with read replicas
+Cache: ElastiCache Redis cluster
+CDN: Cloudflare for static assets
+15.2 Scaling Targets
+Table
+Metric	Launch	6 Months	1 Year
+DAU	1,000	10,000	50,000
+Concurrent Sessions	200	2,000	10,000
+API Requests/min	5,000	50,000	250,000
+AI Generations/min	1,000	10,000	50,000
+15.3 Monitoring
+Uptime: 99.9% SLA
+Latency: P95 < 500ms for API, < 2s for AI responses
+Error Rate: < 0.1%
+Cost per Session: Target <$0.05
+16. POST-LAUNCH ROADMAP
+Phase 1: Foundation (Months 1-3)
+Bug fixes and stability
+Balance adjustments based on player data
+Community features (forums, guides)
+First story expansion
+Phase 2: Growth (Months 4-6)
+Multiplayer enhancements
+Guild/Circle wars (friendly competition)
+Seasonal events (Halloween: "The Thinning Veil")
+Mobile optimizations
+Phase 3: Evolution (Months 7-12)
+VR support (immersive spiritual planes)
+AI-generated custom entities (player-created)
+Cross-platform progression
+Esports/competitive mode (speed discernment challenges)
+Phase 4: Expansion (Year 2)
+"The Living World" expansion (play as a living person interacting with spirits)
+"The Higher Courts" expansion (ascend and judge other spirits)
+"The Deep Realms" expansion (descend and redeem the fallen)
+Full modding support
+APPENDIX A: ENTITY TELL CHEAT SHEET (For Players)
+Table
+Entity	Key Tell	Test Question
+Guardian	Warmth without flattery	"Who do you serve?" → Direct answer
+Adversary	Contradictions that convince	"What did you say 3 turns ago?" → Changes story
+Wounded Performer	Hesitation before cruelty	"Why did you protect me?" → Cracks mask
+Watcher	Asks questions, states obvious	"What do you see?" → Honest observation
+Siren	Love-bombs, then withdraws	"If you love me, love God first" → Recoils
+Family Mimic	Voice slightly "off"	"What would [real person] say about my mission?" → Fails
+Contrarian	Reverses everything	State belief → They reverse it automatically
+Cover-Up	Information seems "missing"	"What happened in my dream?" → Vague/redacted
+Truth-Teller	Quiet, accurate, ignored	Listen for the voice no one responds to
+Atheist Ghost	Denies while existing as ghost	"How can you be here and not believe?" → Shrugs
+Nation	Speaks foreign language, confused	Invoke truth → They understand in heart-language
+Hellish Observer	Silent, assessing	"What do you want?" → "To learn"
+Storm-Seeker	Desperate for divine presence	"Where is God?" → Looking in wrong place
+Saboteur	Confesses everything openly	"Who did this?" → "We did. All of it."
+APPENDIX B: SAMPLE DIALOGUE TREE
+plain
+Player: "I see you. Not the mask. You."
+
+IF target is Wounded Performer:
+  Wounded: "...What?"
+  Player: "You're not evil. You're hurt."
+  Wounded: [mask trembles] "SHUT UP. You don't KNOW me."
+  Player: "I know you protected me from the Siren."
+  Wounded: [silence]
+  Player: "I know you weep when no one is looking."
+  Wounded: [mask drops] "...I am so tired."
+  → RESTORATION PATH UNLOCKED
+
+IF target is Adversary:
+  Adversary: "Oh, how touching. You think you can see through me?"
+  Player: "I don't need to see through you. I need you to step back."
+  Adversary: "Or what? You'll banish me?"
+  Player: "No. I'll stop listening."
+  Adversary: [flickers] "...You can't do that."
+  → BOUNDARY ESTABLISHED
+
+IF target is Siren:
+  Siren: "You see me? You really SEE me?"
+  Player: "I see hunger. Not love."
+  Siren: [recoils] "That's not— I LOVE you."
+  Player: "Love doesn't trap. Love doesn't possess."
+  Siren: [fading] "...I will return. I ALWAYS return."
+  → SIREN WEAKENED
+APPENDIX C: BRAND ASSETS
+Taglines
+"You are dead. Figure out who is who, or be consumed by the chaos."
+"No emojis. No labels. Just discernment."
+"The social survival game for Earthbound spirits."
+"Not all spirits are evil. Some are just wounded."
+App Store Description (Short)
+You are dead. Stuck in the Spiritual Planes. Surrounded by spirits — some allies, some predators, some wounded, some mimics. No emojis. No labels. No easy answers. Learn the tells. Trust your discernment. Find your way home. A social survival game unlike anything you've played.
+Keywords
+spiritual, survival, discernment, afterlife, ghosts, chatbot, AI, mystery, social, deception, truth, faith, wounded, redemption
+Technical Specification v1.0
+The Spiritual Planes: A Social Survival Game
